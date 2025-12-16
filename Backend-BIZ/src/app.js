@@ -9,6 +9,16 @@ dotenv.config();
 const app = express();
 app.use(bodyParser.json());
 
+import adminAuthRoutes from "./routes/adminAuthRoutes.js";
+import adminLeadRoutes from "./routes/adminLeadRoutes.js";
+import adminOrderRoutes from "./routes/adminOrderRoutes.js";
+import adminLogRoutes from "./routes/adminLogRoutes.js";
+
+app.use("/admin/auth", adminAuthRoutes);
+app.use("/admin/leads", adminLeadRoutes);
+app.use("/admin/orders", adminOrderRoutes);
+app.use("/admin/logs", adminLogRoutes);
+
 // Connect DB once on boot
 connectDB().catch((e) => {
   console.error("Mongo connect error:", e);
