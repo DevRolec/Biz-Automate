@@ -6,6 +6,20 @@ const headers = {
   "Content-Type": "application/json",
 };
 
+/* ✅ ADD THIS */
+export const sendTextMessage = async (to, text) => {
+  await axios.post(
+    baseUrl(process.env.PHONE_NUMBER_ID),
+    {
+      messaging_product: "whatsapp",
+      to,
+      type: "text",
+      text: { body: text },
+    },
+    { headers }
+  );
+};
+
 export const sendButtonMessage = async (to, buttons, text) => {
   await axios.post(
     baseUrl(process.env.PHONE_NUMBER_ID),
