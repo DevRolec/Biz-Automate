@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const login = async () => {
+    console.log("API BASE URL:", process.env.NEXT_PUBLIC_API_URL);
     try {
       setLoading(true);
       setError("");
@@ -19,6 +20,7 @@ export default function LoginPage() {
         password,
       });
 
+      console.log("LOGIN RESPONSE:", res.data);
       localStorage.setItem("token", res.data.token);
       window.location.href = "/dashboard";
     } catch (err: any) {

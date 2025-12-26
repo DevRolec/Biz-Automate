@@ -3,10 +3,18 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import webhookRoutes from "./routes/webhookRoutes.js";
 import { connectDB } from "./db/mongoose.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:3000", // frontend
+    credentials: true,
+  })
+);
 app.use(bodyParser.json());
 
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
@@ -31,5 +39,5 @@ app.get("/", (req, res) =>
   res.send("JBiz Automations WhatsApp Bot is running 🚀")
 );
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4040;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
