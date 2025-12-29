@@ -1,28 +1,92 @@
+"use client";
+
+import { Search, Bell, Settings, LogOut, User } from "lucide-react";
+import { useState } from "react";
+import NotificationBell from "./NotificationBell";
+
 export default function Topbar() {
+  const [openProfile, setOpenProfile] = useState(false);
+
   return (
-    <header className="h-16 bg-[#020617] border-b border-white/5 flex items-center px-6 justify-between">
-      {/* Search */}
-      <input
-        placeholder="Search…"
-        className="bg-[#020617] border border-white/10 rounded-lg px-4 py-2 text-sm text-gray-300 outline-none focus:border-cyan-400 w-80"
-      />
+    <header
+      className="h-16 px-6 flex items-center justify-between
+      bg-gradient-to-r from-[#0f1224] to-[#11152d]
+      border-b border-white/10"
+    >
+      {/* LEFT: Global Search */}
+      <div className="flex items-center gap-3 w-full max-w-md">
+        <Search size={18} className="text-gray-400" />
+        <input
+          placeholder="Search phone, lead, intent…"
+          className="w-full bg-transparent text-sm text-white placeholder-gray-400
+          outline-none"
+        />
+      </div>
 
-      {/* Right */}
-      <div className="flex items-center gap-4">
-        <button className="relative">
-          🔔
-          <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full px-1">
-            5
-          </span>
-        </button>
+      {/* RIGHT */}
+      <div className="flex items-center gap-6">
+        {/* Notifications */}
+        <NotificationBell />
 
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-black font-bold">
-            A
+        {/* Profile */}
+        <div className="relative">
+          <div
+            onClick={() => setOpenProfile(!openProfile)}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <div
+              className="w-8 h-8 rounded-full bg-cyan-500
+              flex items-center justify-center text-black font-semibold"
+            >
+              A
+            </div>
           </div>
-          <span className="text-sm"></span>
+
+          {/* Dropdown */}
+          {openProfile && (
+            <div
+              className="absolute right-0 mt-3 w-44 rounded-xl
+              bg-[#0f1224] border border-white/10 shadow-xl overflow-hidden"
+            >
+              <MenuItem icon={<User size={16} />} label="Profile" />
+              <MenuItem icon={<Settings size={16} />} label="Settings" />
+              <MenuItem
+                icon={<LogOut size={16} />}
+                label="Logout"
+                danger
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  window.location.href = "/login";
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </header>
+  );
+}
+
+function MenuItem({
+  icon,
+  label,
+  danger,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  danger?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full px-4 py-3 flex items-center gap-3 text-sm
+        hover:bg-white/5 transition
+        ${danger ? "text-red-400" : "text-gray-300"}`}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }

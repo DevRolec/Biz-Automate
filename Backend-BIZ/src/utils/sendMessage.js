@@ -1,12 +1,14 @@
 import axios from "axios";
+import { logEvent } from "./logger.js";
 
 const baseUrl = (id) => `https://graph.facebook.com/v17.0/${id}/messages`;
+
 const headers = {
   Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
   "Content-Type": "application/json",
 };
 
-/* ✅ ADD THIS */
+/* ---------- TEXT MESSAGE ---------- */
 export const sendTextMessage = async (to, text) => {
   await axios.post(
     baseUrl(process.env.PHONE_NUMBER_ID),
@@ -18,8 +20,16 @@ export const sendTextMessage = async (to, text) => {
     },
     { headers }
   );
+
+  // ✅ LOG OUTGOING MESSAGE
+  await logEvent({
+    phone: to,
+    type: "OUTGOING",
+    message: text,
+  });
 };
 
+/* ---------- BUTTON MESSAGE ---------- */
 export const sendButtonMessage = async (to, buttons, text) => {
   await axios.post(
     baseUrl(process.env.PHONE_NUMBER_ID),
@@ -35,8 +45,15 @@ export const sendButtonMessage = async (to, buttons, text) => {
     },
     { headers }
   );
+
+  await logEvent({
+    phone: to,
+    type: "OUTGOING",
+    message: text,
+  });
 };
 
+/* ---------- ORDER TYPE LIST ---------- */
 export const sendOrderTypeList = async (to) => {
   await axios.post(
     baseUrl(process.env.PHONE_NUMBER_ID),
@@ -77,8 +94,15 @@ export const sendOrderTypeList = async (to) => {
     },
     { headers }
   );
+
+  await logEvent({
+    phone: to,
+    type: "OUTGOING",
+    message: "Order type list sent",
+  });
 };
 
+/* ---------- PACKAGE LIST ---------- */
 export const sendPackageList = async (to) => {
   await axios.post(
     baseUrl(process.env.PHONE_NUMBER_ID),
@@ -109,8 +133,15 @@ export const sendPackageList = async (to) => {
     },
     { headers }
   );
+
+  await logEvent({
+    phone: to,
+    type: "OUTGOING",
+    message: "Package list sent",
+  });
 };
 
+/* ---------- QUANTITY BUTTONS ---------- */
 export const sendQuantityButtons = async (to) => {
   await sendButtonMessage(
     to,
@@ -119,10 +150,11 @@ export const sendQuantityButtons = async (to) => {
       { type: "reply", reply: { id: "QTY_5", title: "5" } },
       { type: "reply", reply: { id: "QTY_10", title: "10" } },
     ],
-    "🔢 How many licenses do you want? (Tap a number or type any number)"
+    "🔢 How many licenses do you want?"
   );
 };
 
+/* ---------- CONFIRM BUTTONS ---------- */
 export const sendConfirmButtons = async (to, summaryText) => {
   await sendButtonMessage(
     to,

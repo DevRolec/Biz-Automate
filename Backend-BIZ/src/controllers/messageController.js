@@ -8,6 +8,7 @@ import {
   sendConfirmButtons,
 } from "../utils/sendMessage.js";
 import { getSession, saveSession, resetSession } from "../utils/session.js";
+import { logEvent } from "../utils/logger.js";
 import { captureLead } from "../utils/leadCapture.js";
 import { computeTotal } from "../utils/pricing.js";
 import Order from "../models/Order.js";
@@ -103,10 +104,9 @@ export const receiveMessage = async (req, res) => {
           return res.sendStatus(200);
 
         case "CONFIRM_ORDER": {
-          // Finalize order
-          const { botType, pkg, quantity, fullName, email } =
-            session.data || {};
+          const { botType, pkg, quantity, fullName, email } = session.data;
           const amount = computeTotal({ botType, pkg, quantity });
+
           const order = await Order.create({
             userPhone: from,
             botType,
@@ -118,18 +118,31 @@ export const receiveMessage = async (req, res) => {
             status: "PENDING",
           });
 
-          // TODO: Replace with generated payment link
-          const payLink = "https://paystack.com/pay/your-link"; // placeholder
+          // await logEvent({
+          //   phone: from,
+          //   type: "ORDER",
+          //   meta: {
+          //     orderId: order._id.toString(),
+          //     amount,
+          //   },
+          // });
+
+          // ✅ ADD IT HERE (ONLY HERE)
+          await logEvent({
+            phone: from,
+            type: "ORDER",
+            meta: {
+              orderId: order._id.toString(),
+              botType,
+              pkg,
+              quantity,
+              amount,
+            },
+          });
 
           await sendTextMessage(
             from,
-            `🧾 *Order Created!* (#${order._id.toString().slice(-6)})\n` +
-              `• Bot: ${botType}\n• Package: ${pkg}\n• Qty: ${quantity}\n` +
-              `• Customer: ${fullName}\n• Email: ${email}\n` +
-              `• Total: ${amount.toLocaleString()} ${
-                process.env.CURRENCY || "NGN"
-              }\n\n` +
-              `💳 Pay here to complete: ${payLink}`
+            `🧾 *Order Created!* (#${order._id.toString().slice(-6)})\n...`
           );
 
           await resetSession(from);
@@ -156,6 +169,21 @@ export const receiveMessage = async (req, res) => {
     /* ---------- TEXT MESSAGES ---------- */
     if (message.type === "text") {
       const userText = message.text?.body || "";
+      const intent = detectIntent(userText);
+
+      // ✅ LOG INCOMING MESSAGE
+      await logEvent({
+        phone: from,
+        type: "INCOMING",
+        message: userText,
+      });
+
+      // ✅ LOG INTENT
+      await logEvent({
+        phone: from,
+        type: "INTENT",
+        intent,
+      });
 
       await captureLead({
         phone: from,
@@ -287,7 +315,7 @@ export const receiveMessage = async (req, res) => {
       }
 
       // No active flow → detect intent
-      const intent = detectIntent(userText);
+
       if (intent === "ORDER") {
         session.flow = "ORDER";
         session.step = "ORDER_BOTTYPE";

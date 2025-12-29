@@ -1,44 +1,86 @@
-export default function DashboardPage() {
-  const stats = [
-    { label: "Conversations", value: "1,248" },
-    { label: "Active Sessions", value: "32" },
-    { label: "Leads Captured", value: "418" },
-    { label: "Orders Started", value: "96" },
-    { label: "Orders Completed", value: "41" },
-  ];
+"use client";
+
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { useEffect, useState } from "react";
+import api from "@/app/lib/api";
+
+export default function DashboardOverview() {
+  const [stats, setStats] = useState<any>({});
+  const [charts, setCharts] = useState<any>({ leads: [], orders: [] });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    api
+      .get("/admin/analytics/overview", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setStats(res.data));
+
+    api
+      .get("/admin/analytics/charts", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setCharts(res.data));
+  }, []);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">WhatsApp Bot Overview</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="bg-[#020617] border border-white/5 rounded-xl p-5"
-          >
-            <p className="text-gray-400 text-sm">{s.label}</p>
-            <p className="text-2xl font-bold mt-2">{s.value}</p>
-          </div>
-        ))}
+    <div className="space-y-10">
+      {/* Counters */}
+      <div className="grid grid-cols-3 gap-6">
+        <StatCard title="Total Leads" value={stats.totalLeads} />
+        <StatCard title="Orders" value={stats.totalOrders} />
+        <StatCard title="Revenue" value={`₦${stats.totalRevenue}`} />
       </div>
 
-      {/* Activity + Funnel placeholders */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[#020617] border border-white/5 rounded-xl p-5 h-80">
-          <p className="font-medium mb-2">Conversation Funnel</p>
-          <p className="text-gray-400 text-sm">
-            Incoming → Intent → Lead → Order
-          </p>
-        </div>
+      {/* Charts */}
+      <div className="grid grid-cols-2 gap-8">
+        <ChartCard title="Leads Growth">
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={charts.leads}>
+              <XAxis dataKey="_id" />
+              <Tooltip />
+              <Line dataKey="count" stroke="#22d3ee" />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-        <div className="bg-[#020617] border border-white/5 rounded-xl p-5 h-80">
-          <p className="font-medium mb-2">Recent Bot Activity</p>
-          <p className="text-gray-400 text-sm">
-            Live WhatsApp events will appear here
-          </p>
-        </div>
+        <ChartCard title="Orders & Revenue">
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={charts.orders}>
+              <XAxis dataKey="_id" />
+              <Tooltip />
+              <Bar dataKey="count" fill="#22c55e" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
+    </div>
+  );
+}
+
+function StatCard({ title, value }: any) {
+  return (
+    <div className="bg-[#0f1224] p-6 rounded-xl border border-white/10">
+      <p className="text-gray-400 text-sm">{title}</p>
+      <p className="text-3xl font-bold text-white mt-2">{value}</p>
+    </div>
+  );
+}
+
+function ChartCard({ title, children }: any) {
+  return (
+    <div className="bg-[#0f1224] p-6 rounded-xl border border-white/10">
+      <h3 className="text-white mb-4">{title}</h3>
+      {children}
     </div>
   );
 }

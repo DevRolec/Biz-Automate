@@ -16,3 +16,22 @@ export const markOrderPaid = async (req, res) => {
   );
   res.json(order);
 };
+
+export const updateOrderStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const allowedStatuses = ["PENDING", "PAID", "CANCELLED"];
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status" });
+  }
+
+  const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  res.json(order);
+};

@@ -21,11 +21,15 @@ import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import adminLeadRoutes from "./routes/adminLeadRoutes.js";
 import adminOrderRoutes from "./routes/adminOrderRoutes.js";
 import adminLogRoutes from "./routes/adminLogRoutes.js";
+import adminAnalyticsRoutes from "./routes/adminAnalyticsRoutes.js";
+import adminNotificationRoutes from "./routes/adminNotificationRoutes.js";
 
+app.use("/admin/analytics", adminAnalyticsRoutes);
 app.use("/admin/auth", adminAuthRoutes);
 app.use("/admin/leads", adminLeadRoutes);
 app.use("/admin/orders", adminOrderRoutes);
 app.use("/admin/logs", adminLogRoutes);
+app.use("/admin/notifications", adminNotificationRoutes);
 
 // Connect DB once on boot
 connectDB().catch((e) => {

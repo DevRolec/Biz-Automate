@@ -3,11 +3,17 @@ import { requireAuth } from "../middleware/auth.js";
 import {
   getOrders,
   markOrderPaid,
+  updateOrderStatus,
 } from "../controllers/adminOrderController.js";
 
 const router = express.Router();
 
 router.get("/", requireAuth, getOrders);
-router.patch("/:id/pay", requireAuth, markOrderPaid);
+
+// Quick payment hook (existing)
+router.patch("/:id/paid", requireAuth, markOrderPaid);
+
+// NEW: Admin-controlled status update
+router.patch("/:id/status", requireAuth, updateOrderStatus);
 
 export default router;
