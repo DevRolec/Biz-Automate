@@ -23,7 +23,9 @@ import adminOrderRoutes from "./routes/adminOrderRoutes.js";
 import adminLogRoutes from "./routes/adminLogRoutes.js";
 import adminAnalyticsRoutes from "./routes/adminAnalyticsRoutes.js";
 import adminNotificationRoutes from "./routes/adminNotificationRoutes.js";
+import adminSearchRoutes from "./routes/adminSearchRoutes.js";
 
+app.use("/admin/search", adminSearchRoutes);
 app.use("/admin/analytics", adminAnalyticsRoutes);
 app.use("/admin/auth", adminAuthRoutes);
 app.use("/admin/leads", adminLeadRoutes);

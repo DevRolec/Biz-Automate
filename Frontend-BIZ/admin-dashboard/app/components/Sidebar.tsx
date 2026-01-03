@@ -1,42 +1,95 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, Users, ShoppingCart, FileText } from "lucide-react";
 
-export default function Sidebar() {
+const nav = [
+  {
+    title: "Dashboard",
+    items: [{ label: "Overview", href: "/dashboard", icon: LayoutDashboard }],
+  },
+  {
+    title: "Management",
+    items: [
+      { label: "Leads", href: "/dashboard/leads", icon: Users },
+      { label: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
+      { label: "Logs", href: "/dashboard/logs", icon: FileText },
+    ],
+  },
+];
+
+export default function Sidebar({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const pathname = usePathname();
+
   return (
-    <aside className="w-64 bg-[#020617] border-r border-white/5 p-6">
-      {/* Brand */}
-      <div className="text-xl font-bold mb-10">
-        Wap-Biz <span className="text-cyan-400">Admin</span>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        />
+      )}
 
-      {/* Menu */}
-      <nav className="space-y-6">
-        <div>
-          <p className="text-xs uppercase text-gray-500 mb-3">Dashboard</p>
-          <ul className="space-y-2">
-            <SidebarLink href="/dashboard" label="Overview" />
-          </ul>
+      <aside
+        className={`
+          fixed md:relative z-50
+          w-64 h-screen shrink-0
+          bg-[#020617] border-r border-white/5
+          transition-transform duration-300
+          ${open ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+        `}
+      >
+        {/* Brand */}
+        <div className="px-6 py-6 text-xl font-bold">
+          Wap-Biz <span className="text-cyan-400">Admin</span>
         </div>
 
-        <div>
-          <p className="text-xs uppercase text-gray-500 mb-3">Management</p>
-          <ul className="space-y-2">
-            <SidebarLink href="/dashboard/leads" label="Leads" />
-            <SidebarLink href="/dashboard/orders" label="Orders" />
-            <SidebarLink href="/dashboard/logs" label="Logs" />
-          </ul>
-        </div>
-      </nav>
-    </aside>
-  );
-}
+        {/* Navigation */}
+        <nav className="px-4 space-y-8">
+          {nav.map((group) => (
+            <div key={group.title}>
+              <p className="text-xs uppercase text-gray-500 mb-3 px-2">
+                {group.title}
+              </p>
 
-function SidebarLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link
-      href={href}
-      className="block px-4 py-2 rounded-lg text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition"
-    >
-      {label}
-    </Link>
+              <ul className="space-y-1">
+                {group.items.map((item) => {
+                  const active = pathname === item.href;
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`
+                        flex items-center gap-3 px-3 py-2 rounded-lg
+                        text-sm transition
+                        ${
+                          active
+                            ? "bg-cyan-500/15 text-cyan-400"
+                            : "text-gray-300 hover:bg-white/5 hover:text-white"
+                        }
+                      `}
+                    >
+                      <Icon size={18} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </nav>
+      </aside>
+    </>
   );
 }

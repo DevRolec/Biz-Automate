@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { requireAuth } from "../lib/auth";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
@@ -10,19 +10,21 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   useEffect(() => {
     requireAuth();
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-[#0f172a] text-white">
+    <div className="flex h-screen bg-[#0f172a] text-white overflow-hidden">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main Area */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col">
-        <Topbar />
-        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+        <Topbar onToggleSidebar={() => setSidebarOpen(true)} />
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );
